@@ -12,23 +12,14 @@ def user_api_view(request):
     if request.method == "GET":
         #queryset
         users = User.objects.all()
-        users_serializer = UserSerializer(users, many = True)
-        test_data = {
-            "name" : "Leonardus",
-            "email" : ""
-        }
-        test_user = TestUserSerializer(data = test_data)
-        if test_user.is_valid():
-            print("Paso validaciones")
-        else:
-            print(test_user.errors)
-        return Response(users_serializer.data, status = status.HTTP_200_OK)
+        users_serializer = UserSerializer(users, many = True)  
     #create
     elif request.method == "POST":
         #print(request.data)
-        users_serializer= UserSerializer(data=request.data)
+        users_serializer= TestUserSerializer(data=request.data)
         #validation
         if users_serializer.is_valid():
+ # al usar .save() se llama a una serie  servicios automatizados de verificacion              
             users_serializer.save()
             return Response({"message" : "Usuario creado correctamente"}, status=status.HHTP_201_CREATED)
         return Response(users_serializer.errors, status = status.HTTP_400_BAD_REQUEST )
