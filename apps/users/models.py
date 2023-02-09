@@ -44,3 +44,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return f'{self.name} {self.last_name}'
+
+"""    #Sobreescribir el metodo safe del modelo aqui no hace 
+    # que no se guarde simplemente es para que haga algo mas
+    def save():
+        print("Holaaaaaaaaaaaaaaaaa")""" 
+
