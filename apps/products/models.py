@@ -85,10 +85,10 @@ class Product(BaseModel):
     def _history_user(self, value):
         self.changed_by = value
 
-        class Meta:
-            """Meta definition for Product."""
-            verbose_name = 'Producto'
-            verbose_name_plural = 'Productos'
+    class Meta:
+        """Meta definition for Product."""
+        verbose_name = 'Producto'
+        verbose_name_plural = 'Productos'
 
     def __str__(self):
         """Unicode representation of Product."""
