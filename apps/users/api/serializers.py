@@ -1,6 +1,11 @@
 from rest_framework import serializers
 from apps.users.models import User
 
+class UserTokenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("username", "email", "name", "last_name")
+
 # cuando se usa un ModelSerializer y solo se define la siguiente informacio
 # Django por detras en el metodo create realiza lo siguiente 
 # return self.model.objects.create(**validated_data)
