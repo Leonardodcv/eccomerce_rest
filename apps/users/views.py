@@ -13,9 +13,8 @@ from apps.users.api.serializers import UserTokenSerializer
 class UserToken(APIView):
     def get(self, request, *args, **kwargs):
         username = request.GET.get("username")
-
         try:
-            user_token = Token.object.get(
+            user_token = Token.objects.get(
                 user = UserTokenSerializer().Meta.model.objects.filter(username = username).first()
             )
             return Response({
@@ -30,8 +29,10 @@ class UserToken(APIView):
 class Login(ObtainAuthToken):
     
     def post(self, request, *args, **kwargs):
+        # envia al serializador el usuario y la contraseña
         login_serializer = self.serializer_class(data = request.data, context = {"request":request})
         if login_serializer.is_valid():
+            # login serializer retorna el usuario en validated_data
             user = login_serializer.validated_data["user"]
             if user.is_active:
                 token, created = Token.objects.get_or_create(user = user)
