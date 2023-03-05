@@ -6,25 +6,41 @@ from apps.users.authentication import ExpiringTokenAuthentication
 
 class Authentication(object):
     user = None
-    user_token_expired =False
 
     def get_user(self, request):
+        
+        """
+        Return: 
+        *user: User instance or
+        *message : Error Message or
+        * None : Corrup Token
+        """
         token = get_authorization_header(request).split()
-        #30a00a01c5959dc9d22c39e6e0cde223eb10aaa7
         if token:
             try:
                 token = token[1].decode()
             except:
                 return None
             token_expire = ExpiringTokenAuthentication()
-            user,token,message,self.user_token_expired = token_expire.authenticate_credentials(token)
-            if user != None  and token != None:
+            user = token_expire.authenticate_credentials(token)
+            if user != None:
                 self.user = user
                 return user
-            return message
         return None          
     
     def dispatch(self, request, *args, **kwargs):
+        user = self.get_user(request)
+        #encuentra un token en request
+        if user is not None:
+            return super().dispatch(request, *args, **kwargs)
+        response = Response({"error" : "No se han enviado las credenciales"},
+                            status = status.HTTP_400_BAD_REQUEST)
+        response.accepted_renderer = JSONRenderer()
+        response.accepted_media_type = "application/json"
+        response.renderer_context = {}
+        return response
+    
+    def viejo_dispatch(self, request, *args, **kwargs):
         user = self.get_user(request)
         #encuentra un token en request
         if user is not None:
