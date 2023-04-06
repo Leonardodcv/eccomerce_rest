@@ -1,17 +1,95 @@
 from django.shortcuts import render
+from django.contrib.auth import authenticate
 from django.contrib.sessions.models import Session
 from datetime import datetime
-
+from rest_framework import status
+from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from rest_framework import status
 
-from apps.users.api.serializers import UserTokenSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
+
 from apps.users.authentication_mixins import Authentication
+from apps.users.api.serializers import ( 
+    CustomTokenObtainPairSerializer, CustomUserSerializer)
+
+from apps.users.models import User
+
+class Login(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+
+    def post(self, request, *args, **kwargs):
+        username = request.data.get("username", "")
+        password = request.data.get("password", "")
+        user = authenticate(
+            username = username,
+            password = password
+        )
+
+        if user:
+            login_serializer = self.serializer_class(data = request.data)
+            if login_serializer.is_valid():
+                user_serializer = CustomUserSerializer(user)
+                return Response({
+                    "token" : login_serializer.validated_data.get("access"),
+                    "refresh-token" : login_serializer.validated_data.get("refresh"),
+                    "user" : user_serializer.data,
+                    "message" : "Inicio de Sesion Exitoso"
+                }, status = status.HTTP_200_OK)
+            return Response({"error" : "Contraseña o nombre de usuario incorrectos"}, status = status.HTTP_400_BAD_REQUEST)
+        return Response({"error" : "Contraseña o nombre de usuario incorrectos"}, status = status.HTTP_400_BAD_REQUEST)
+    
+class Logout(GenericAPIView):
+
+    def post(self, request, *args, **kwargs):
+        user = User.objects.filter(id = request.data.get("user", ""))
+        if user.exists():
+            RefreshToken.for_user(user.first())
+            return Response({"message" : "Sesion cerrada correctamente"}, status = status.HTTP_200_OK)
+        return Response({"error" : "No existe este usuario"}, status = status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#las siguientes clases no se usaran para nada seran sustituidas por lo que 
+#este ensima
 # Create your views here.
-class UserToken(Authentication, APIView):
+class UserToken11(Authentication, APIView):
     """
     validacion del token
     """
@@ -31,7 +109,7 @@ class UserToken(Authentication, APIView):
             }, status = status.HTTP_400_BAD_REQUEST)
 
 
-class Login(ObtainAuthToken):
+class Login11(ObtainAuthToken):
     
     def post(self, request, *args, **kwargs):
         # envia al serializador el usuario y la contraseña
@@ -75,7 +153,7 @@ class Login(ObtainAuthToken):
             status=status.HTTP_400_BAD_REQUEST)
         return Response({"mensaje":"Hola desde reponse"}, status = status.HTTP_200_OK)
 
-class Logout(APIView):
+class Logout11(APIView):
 
     def get(self, request, *args, **kwargs):
         try:

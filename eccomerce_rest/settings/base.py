@@ -40,6 +40,8 @@ THIRD_APPS=[
     "corsheaders",
     "rest_framework",
     "rest_framework.authtoken",
+    "rest_framework_simplejwt",
+    'rest_framework_simplejwt.token_blacklist',
     "simple_history",
     "drf_yasg",
 ]
@@ -49,8 +51,15 @@ INSTALLED_APPS = BASE_APPS + LOCAL_APPS + THIRD_APPS
 SWAGGER_SETTINGS = {
     "DOC_EXPANSION" : "none"
 }
-
-TOKEN_EXPIRED_AFTER_SECONDS = 900
+ 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    "DEFAULT_PERMISSION_CLASSES":(
+        "rest_framework.permissions.IsAuthenticated",
+    )
+}
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -122,6 +131,12 @@ CORS_ORIGIN_WHITELIST = [
     "http://localhost:3000"
 ]
 
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS" : True,
+    "BLACKLIST_AFTER_ROTATION" : True
+}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/

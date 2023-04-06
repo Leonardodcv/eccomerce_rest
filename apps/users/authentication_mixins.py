@@ -4,7 +4,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework import status, authentication, exceptions
 from apps.users.authentication import ExpiringTokenAuthentication
 
-class Authentication(object):
+class Authentication(authentication.BaseAuthentication):
     user = None
 
     def get_user(self, request):
@@ -26,8 +26,15 @@ class Authentication(object):
             if user != None:
                 self.user = user
                 return user
-        return None          
-    
+        return None
+
+    def authenticate(self, request):
+        self.get_user(request)
+        if self.user is None:
+            raise exceptions.AuthenticationFailed("No se han enviado las credenciales")
+        return (self.user, None)          
+    """    
+    El  metodo dispatch ya no es util porque no se hace la verificacion por medio del metodo mixins
     def dispatch(self, request, *args, **kwargs):
         user = self.get_user(request)
         #encuentra un token en request
@@ -60,4 +67,4 @@ class Authentication(object):
         response.accepted_media_type = "application/json"
         response.renderer_context = {}
         return response
-        
+        """

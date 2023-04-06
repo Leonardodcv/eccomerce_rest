@@ -1,10 +1,17 @@
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
 from apps.users.models import User
 
-class UserTokenSerializer(serializers.ModelSerializer):
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    pass
+
+
+#Token creado manualmente
+class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("username", "email", "name", "last_name")
+        fields = ("username","email","name","last_name")
 
 # cuando se usa un ModelSerializer y solo se define la siguiente informacio
 # Django por detras en el metodo create realiza lo siguiente 
@@ -26,12 +33,24 @@ class UserSerializer(serializers.ModelSerializer):
         return user
         #valor predeterminado del metodo create
         #return super().create(validated_data)   
+class UpdateUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("username", "email", "name", "last_name")
 
-    def update(self, instance, validated_data):
+class PasswordSerializer(serializers.Serializer):
+    password = serializers.CharField(max_length = 128, min_length = 6, write_only = True)
+    password2 = serializers.CharField(max_length = 128, min_length = 6, write_only = True)
+
+    def validate(self, data):
+        if data["password"] != data["password2"]:
+            raise serializers.ValidationError("Debe ingresar ambas contrasennas correctas")
+        return data
+    """def update(self, instance, validated_data):
         updated_user = super().update(instance, validated_data)
         updated_user.set_password(validated_data["password"])
         updated_user.save()
-        return updated_user
+        return updated_user"""
         #valor predeterminado del metodo update
         #return super().update(instance, validated_data)      
      
@@ -45,6 +64,7 @@ class UserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = "__all__"
+        
     def to_representation(self, instance):
         #de esta forma es este metodo de forma predeterminada 
         #en el cual se llama al constructor y luego a este metodo
@@ -53,12 +73,13 @@ class UserListSerializer(serializers.ModelSerializer):
             #se usa de esta forma y no instance.id porque en realidad instance 
             # es un diccionario
             "id" : instance["id"],
+            "name": instance["name"],
             "username" : instance["username"],
-            "email" : instance["email"],
+            "email" : instance["email"]
             # se puede cambiar los nombres de esta forma para que sean 
             # representados de otra forma al mostrarlos pero al no tomar de la 
             # base de datos todos los valores agilisara la consulta
-            "password" : instance["password"],
+            #"password" : instance["password"],
             #"password" : instance
         }
 

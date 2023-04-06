@@ -1,14 +1,11 @@
-from rest_framework import generics
-from rest_framework import status
-from rest_framework import viewsets
+from rest_framework import status, viewsets
 from rest_framework.response import Response
-
-from apps.base.api import GeneralListApiView
-from apps.users.authentication_mixins import Authentication
+#from rest_framework.permissions import IsAuthenticated
 from apps.products.api.serializers.product_serializers import ProductSerializer
 
-class ProductViewSet(Authentication, viewsets.ModelViewSet):
+class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
+    #permission_classes = (IsAuthenticated, )
     
     def get_queryset(self, pk=None):
         if pk is None:
@@ -42,11 +39,21 @@ class ProductViewSet(Authentication, viewsets.ModelViewSet):
                 product_serializer.save()
                 return Response(product_serializer.data, status=status.HTTP_200_OK)
             return Response(product_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-class ProductListAPIView(GeneralListApiView):
+
+    def destroy(self, request, pk=None):
+        product = self.get_queryset().filter(id = pk).first()
+        if product:
+            product.state = False
+            product.save()
+            return Response({"mesage" : "Producto eliminado correctamente"}, status = status.HTTP_200_OK)
+        return Response({"error" : "No existe un producto con estos datos"}, status = status.HTTP_400_BAD_REQUEST)
+
+
+"""
+class ProductListAPIView(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
 
-class ProductListCreateAPIView(generics.ListCreateAPIView):
+class ProductListCreateAPIView(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
     queryset = ProductSerializer.Meta.model.objects.filter(state = True)
 
@@ -57,7 +64,7 @@ class ProductListCreateAPIView(generics.ListCreateAPIView):
             return Response({"message" : "Producto creado correctamente!"}, status = status.HTTP_201_CREATED)
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 
-class ProductRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+class ProductRetrieveUpdateDestroyAPIView(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
 
     def get_queryset(self, pk=None):
@@ -71,7 +78,7 @@ class ProductRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
             product_serializer = self.serializer_class(self.get_queryset(pk))
             return Response(product_serializer.data, status = status.HTTP_200_OK)
         return Response({"error" : "No existe un Producto con estos datos!"}, status = status.HTTP_200_OK)
-
+"""
   
         
 
