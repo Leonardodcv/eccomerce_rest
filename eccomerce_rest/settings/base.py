@@ -33,7 +33,8 @@ BASE_APPS = [
 LOCAL_APPS = [
     "apps.base",
     "apps.users",
-    "apps.products"
+    "apps.products",
+    "apps.expense_manager",
 ]
 #https://github.com/adamchainz/django-cors-headers
 THIRD_APPS=[
