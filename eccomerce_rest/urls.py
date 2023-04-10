@@ -39,6 +39,7 @@ urlpatterns = [
    path('admin/', admin.site.urls),
    path("usuario/", include("apps.users.api.routers")),
    path("products/", include("apps.products.api.routers")),
+   path("expense/", include("apps.expense_manager.api.routers")),
 ]
 
 urlpatterns += [
