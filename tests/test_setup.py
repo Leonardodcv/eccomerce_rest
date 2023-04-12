@@ -3,6 +3,8 @@ from faker import Faker
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+#clase para hacer que los demas test hereden de esta  y no
+#hacer en cada test la conexion a la base de datos
 class TestSetUp(APITestCase):
     def setUp(self):
         from apps.users.models import User
