@@ -32,6 +32,7 @@ class ProductSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         return {
             "id" : instance.id,
+            "stock": instance.stock.get("quantity__sum", 0) if instance.stock.get("quantity__sum") is not None else 0,
             "name" : instance.name,
             "description" : instance.description,
             "image" : instance.image.url if instance.image != "" else "",
